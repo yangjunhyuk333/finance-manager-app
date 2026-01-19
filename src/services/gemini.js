@@ -5,12 +5,12 @@
  * Use the 'analyzeImage' function to send base64 image data to the model.
  */
 
-// import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const API_KEY = "YOUR_API_KEY_HERE"; // TODO: Replace with user provided key
+const API_KEY = "AIzaSyBf_qmoXMi5ct7MUnO5ULfxhobugnpMQHE";
 
-// const genAI = new GoogleGenerativeAI(API_KEY);
-// const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const genAI = new GoogleGenerativeAI(API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 export const analyzeImage = async (file) => {
     if (API_KEY === "YOUR_API_KEY_HERE") {
@@ -29,31 +29,32 @@ export const analyzeImage = async (file) => {
         });
     }
 
-    /* Real Implementation (Commented out until Key is provided)
+    /* Real Implementation */
     try {
-      const base64Data = await fileToGenerativePart(file);
-      const prompt = `
-        Analyze this bank account/savings screenshot. 
-        Extract the following fields in JSON format:
-        - bankName (String)
-        - productName (String)
-        - interestRate (Number, percentage)
-        - amount (Number, principal amount)
-        - maturityDate (String, YYYY-MM-DD format)
-        
-        If a field is missing, make a best guess or return null.
-        Return ONLY raw JSON.
-      `;
-  
-      const result = await model.generateContent([prompt, base64Data]);
-      const response = await result.response;
-      const text = response.text();
-      return JSON.parse(text.replace(/```json|```/g, ''));
+        const base64Data = await fileToGenerativePart(file);
+        const prompt = `
+      Analyze this bank account/savings screenshot. 
+      Extract the following fields in JSON format:
+      - bankName (String, e.g. "Kakao Bank", "Toss Bank")
+      - productName (String, e.g. "Safe Box")
+      - interestRate (Number, percentage e.g. 3.5)
+      - amount (Number, principal amount integer)
+      - maturityDate (String, YYYY-MM-DD format)
+      
+      If a field is missing, make a best guess or return null.
+      Return ONLY raw JSON. No markdown.
+    `;
+
+        const result = await model.generateContent([prompt, base64Data]);
+        const response = await result.response;
+        const text = response.text();
+        // Clean up markdown if present
+        const cleanText = text.replace(/```json|```/g, '').trim();
+        return JSON.parse(cleanText);
     } catch (error) {
-      console.error("Gemini Analysis Failed:", error);
-      throw error;
+        console.error("Gemini Analysis Failed:", error);
+        throw error;
     }
-    */
 };
 
 // Helper to convert File to Base64 for Gemini
